@@ -33,9 +33,76 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
             {
               "type": "heading",
               "data": {
+                "level": 3,
+                "title": "Usage",
+                "slug": "usage"
+              },
+              "depth": 3
+            }, {
+              "type": "heading",
+              "data": {
                 "level": 2,
-                "title": "queryfu(path, operator, value)",
-                "slug": "queryfupath-operator-value"
+                "title": "queryfu.select",
+                "slug": "queryfuselect"
+              },
+              "depth": 2
+            }, {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "queryfu.match",
+                "slug": "queryfumatch"
+              },
+              "depth": 2
+            }, {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "CursorFu",
+                "slug": "cursorfu"
+              },
+              "depth": 2,
+              "children": [
+                {
+                  "type": "heading",
+                  "data": {
+                    "level": 3,
+                    "title": "ListCursorFu",
+                    "slug": "listcursorfu"
+                  },
+                  "depth": 3
+                }, {
+                  "type": "heading",
+                  "data": {
+                    "level": 3,
+                    "title": "FilteredFu",
+                    "slug": "filteredfu"
+                  },
+                  "depth": 3
+                }
+              ]
+            }, {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "queryfu.listCursor",
+                "slug": "queryfulistcursor"
+              },
+              "depth": 2
+            }, {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "queryfu.where",
+                "slug": "queryfuwhere"
+              },
+              "depth": 2
+            }, {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "queryfu.isCursor",
+                "slug": "queryfuiscursor"
               },
               "depth": 2
             }
