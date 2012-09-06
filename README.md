@@ -1,4 +1,5 @@
 queryfu
 =======
 
-Abstract query syntax for ninjas
+An intermediate query language for ninjas. Compatable with MongoDB and (eventually CouchDB, SQL).
+
