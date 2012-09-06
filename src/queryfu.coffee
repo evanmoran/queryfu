@@ -411,7 +411,7 @@ queryfu.QueryFu = QueryFu
 queryfu.CursorFu = CursorFu
 
 # Version
-queryfu.version = '0.0.1'
+queryfu.version = '0.2.0'
 
 # Export
 module.exports = queryfu

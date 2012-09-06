@@ -493,7 +493,7 @@
 
   queryfu.CursorFu = CursorFu;
 
-  queryfu.version = '0.0.1';
+  queryfu.version = '0.2.0';
 
   module.exports = queryfu;
 
