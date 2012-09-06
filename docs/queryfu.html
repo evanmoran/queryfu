@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang="en"><head><title>queryfu</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="queryfu"><meta name="groc-project-path" content="src/queryfu.coffee"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/queryfu.coffee</div></div><div id="document"><div class="segment"></div><div class="segment"><div class="comments"><div class="wrapper"><h1 id="queryfu">queryfu</h1>
+
+<p>An intermediate query language for ninjas.</p></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>queryfu(path, value)</p>
+
+<h2 id="queryfupath-operator-value">queryfu(path, operator, value)</h2>
+
+<pre><code>path          String of attribute with optional dot syntax (e.g. 'name', 'person.name')
+value         String, Number, Boolean, Date, or null that defines value being compared
+operator      (Optional) String representing operator:
+              &lt;, &lt;=, =, &gt;=, &gt;, !=
+</code></pre></div></div><div class="code"><div class="wrapper"><span class="nv">queryfu = </span><span class="nf">(path, operator, value) -&gt;</span>
+
+  <span class="nv">qf = </span><span class="k">new</span> <span class="nx">QueryFu</span>
+  <span class="nx">qf</span><span class="p">.</span><span class="nx">where</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">qf</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">)</span>
+
+<span class="nv">root = </span><span class="nx">@</span>
+
+<span class="nv">_isArrayEqual = </span><span class="nf">(arr1, arr2) -&gt;</span>
+  <span class="k">if</span> <span class="nx">arr1</span><span class="p">.</span><span class="nx">length</span> <span class="o">!=</span> <span class="nx">arr2</span><span class="p">.</span><span class="nx">length</span>
+    <span class="k">return</span> <span class="kc">false</span>
+  <span class="k">for</span> <span class="nx">v</span><span class="p">,</span><span class="nx">k</span> <span class="k">in</span> <span class="nx">arr1</span>
+    <span class="k">if</span> <span class="nx">arr2</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="o">!=</span> <span class="nx">v</span>
+      <span class="k">return</span> <span class="kc">false</span>
+  <span class="kc">true</span>
+
+<span class="nv">_hasOnlyKey = </span><span class="nf">(obj, key) -&gt;</span>
+  <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isObject</span> <span class="nx">obj</span><span class="p">)</span> <span class="o">and</span> <span class="nx">_isArrayEqual</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">keys</span> <span class="nx">obj</span><span class="p">),</span> <span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+
+<span class="nv">_mergeOpAtQuery = </span><span class="nf">(query) -&gt;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Check for &amp;</p></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>loop to find merges</p></div></div><div class="code"><div class="wrapper"><span class="nv">_mergeFailed = </span><span class="p">{}</span>
+<span class="nv">_mergeOp = </span><span class="nf">(operator, currentValue, value, key, errorList) -&gt;</span>
+  <span class="k">switch</span> <span class="nx">operator</span>
+    <span class="k">when</span> <span class="s">&#39;&lt;&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;=&#39;</span>
+      <span class="k">return</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">)</span>
+    <span class="k">when</span> <span class="s">&#39;&gt;=&#39;</span><span class="p">,</span> <span class="s">&#39;&gt;&#39;</span>
+      <span class="k">return</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">)</span>
+    <span class="k">when</span> <span class="s">&#39;=&#39;</span>
+      <span class="k">if</span> <span class="nx">currentValue</span> <span class="o">!=</span> <span class="nx">value</span>
+        <span class="nx">errorList</span><span class="p">.</span><span class="nx">push</span> <span class="s">&quot;conflicting equality checks were found (key: </span><span class="si">#{</span><span class="nx">key</span><span class="si">}</span><span class="s">, values: </span><span class="si">#{</span><span class="nx">currentValue</span><span class="si">}</span><span class="s">, </span><span class="si">#{</span><span class="nx">value</span><span class="si">}</span><span class="s">)&quot;</span>
+      <span class="k">return</span> <span class="nx">value</span>
+  <span class="nx">_mergeFailed</span>
+
+<span class="k">class</span> <span class="nx">QueryFu</span>
+
+  <span class="nv">constructor: </span><span class="nf">(json = {}, errors = [])-&gt;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>TODO: validation of json</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@_query = </span><span class="nx">_</span><span class="p">.</span><span class="nx">clone</span> <span class="nx">json</span>
+    <span class="vi">@_errors = </span><span class="nx">errors</span><span class="p">.</span><span class="nx">slice</span> <span class="mi">0</span>
+
+  <span class="nv">_inplaceWhere: </span><span class="nf">(path, operator, value) -&gt;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Handle multiple object parameters</p></div></div><div class="code"><div class="wrapper">    <span class="k">if</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">and</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isObject</span> <span class="nx">path</span>
+      <span class="k">for</span> <span class="nx">k</span><span class="p">,</span> <span class="nx">v</span> <span class="k">of</span> <span class="nx">path</span>
+        <span class="nx">@_inplaceWhere</span> <span class="nx">k</span><span class="p">,</span> <span class="nx">v</span>
+      <span class="k">return</span> <span class="nx">@</span>
+
+    <span class="k">if</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">2</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Handle multiple operator parameters</p></div></div><div class="code"><div class="wrapper">      <span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isObject</span> <span class="nx">operator</span>
+        <span class="k">for</span> <span class="nx">k</span><span class="p">,</span> <span class="nx">v</span> <span class="k">of</span> <span class="nx">operator</span>
+          <span class="nx">@_inplaceWhere</span> <span class="nx">path</span><span class="p">,</span> <span class="nx">k</span><span class="p">,</span> <span class="nx">v</span>
+        <span class="k">return</span> <span class="nx">@</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Operator defaults to =</p></div></div><div class="code"><div class="wrapper">      <span class="nv">value = </span><span class="nx">operator</span>
+      <span class="nv">operator = </span><span class="s">&#39;=&#39;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Canonicalise equals</p></div></div><div class="code"><div class="wrapper">    <span class="nv">operator = </span><span class="s">&#39;=&#39;</span> <span class="k">if</span> <span class="nx">operator</span> <span class="o">==</span> <span class="s">&#39;==&#39;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Use explicit conjunction if there is a key collision</p></div></div><div class="code"><div class="wrapper">    <span class="k">if</span> <span class="p">(</span><span class="nv">expr = </span><span class="nx">@_query</span><span class="p">[</span><span class="nx">path</span><span class="p">])</span><span class="o">?</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Explicitise equals</p></div></div><div class="code"><div class="wrapper">      <span class="nv">expr = </span><span class="p">(</span><span class="nx">@_query</span><span class="p">[</span><span class="nx">path</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;=&#39;</span><span class="o">:</span> <span class="nx">expr</span><span class="p">})</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isObject</span> <span class="nx">expr</span>
+
+      <span class="k">if</span> <span class="o">not</span> <span class="nx">expr</span><span class="p">[</span><span class="nx">operator</span><span class="p">]</span><span class="o">?</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>No operator collision. Implicit conjunction</p></div></div><div class="code"><div class="wrapper">        <span class="nx">expr</span><span class="p">[</span><span class="nx">operator</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span>
+      <span class="k">else</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>operator collision</p></div></div><div class="code"><div class="wrapper">        <span class="nv">merged = </span><span class="nx">_mergeOp</span> <span class="nx">operator</span><span class="p">,</span> <span class="nx">@_query</span><span class="p">[</span><span class="nx">path</span><span class="p">][</span><span class="nx">operator</span><span class="p">],</span> <span class="nx">value</span><span class="p">,</span> <span class="nx">path</span><span class="p">,</span> <span class="nx">@_errors</span>
+        <span class="k">if</span> <span class="nx">merged</span> <span class="o">!=</span> <span class="nx">_mergeFailed</span>
+          <span class="nx">@_query</span><span class="p">[</span><span class="nx">path</span><span class="p">][</span><span class="nx">operator</span><span class="p">]</span> <span class="o">=</span> <span class="nx">merged</span>
+          <span class="k">if</span> <span class="nx">_hasOnlyKey</span> <span class="nx">@_query</span><span class="p">[</span><span class="nx">path</span><span class="p">],</span> <span class="s">&#39;=&#39;</span>
+            <span class="nx">@_query</span><span class="p">[</span><span class="nx">path</span><span class="p">]</span> <span class="o">=</span> <span class="nx">@_query</span><span class="p">[</span><span class="nx">path</span><span class="p">][</span><span class="s">&#39;=&#39;</span><span class="p">]</span>
+        <span class="k">else</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Merge failed. Explicit conjunction</p></div></div><div class="code"><div class="wrapper">          <span class="nv">subquery = </span><span class="p">{}</span>
+          <span class="nx">subquery</span><span class="p">[</span><span class="nx">path</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+          <span class="nx">subquery</span><span class="p">[</span><span class="nx">path</span><span class="p">][</span><span class="nx">operator</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span>
+          <span class="vi">@_query = </span><span class="s">&#39;&amp;&#39;</span><span class="o">:</span> <span class="p">[</span> <span class="nx">@_query</span><span class="p">,</span> <span class="nx">subquery</span> <span class="p">]</span>
+    <span class="k">else</span>
+      <span class="k">switch</span> <span class="nx">operator</span>
+        <span class="k">when</span> <span class="s">&#39;=&#39;</span><span class="p">,</span> <span class="s">&#39;==&#39;</span>
+          <span class="nx">@_query</span><span class="p">[</span><span class="nx">path</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span>
+        <span class="k">when</span> <span class="s">&#39;!=&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;=&#39;</span><span class="p">,</span> <span class="s">&#39;&gt;=&#39;</span><span class="p">,</span> <span class="s">&#39;&gt;&#39;</span>
+          <span class="nv">expression = </span><span class="p">{}</span>
+          <span class="nx">expression</span><span class="p">[</span><span class="nx">operator</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span>
+          <span class="nx">@_query</span><span class="p">[</span><span class="nx">path</span><span class="p">]</span> <span class="o">=</span> <span class="nx">expression</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Return self</p></div></div><div class="code"><div class="wrapper">    <span class="nx">@</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Where that doesn't change itself</p></div></div><div class="code"><div class="wrapper">  <span class="nv">where: </span><span class="o">-&gt;</span>
+    <span class="nv">q = </span><span class="k">new</span> <span class="nx">QueryFu</span> <span class="nx">@_query</span><span class="p">,</span> <span class="nx">@_errors</span>
+    <span class="nx">q</span><span class="p">.</span><span class="nx">_inplaceWhere</span> <span class="nx">arguments</span><span class="p">...</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p><code>and</code> is an alias for where</p></div></div><div class="code"><div class="wrapper">  <span class="o">and:</span> <span class="o">-&gt;</span>
+    <span class="nx">@where</span> <span class="nx">arguments</span><span class="p">...</span>
+
+  <span class="nv">error: </span><span class="o">-&gt;</span>
+    <span class="nx">@_errors</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s">&#39;\n&#39;</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>toJSON</p></div></div><div class="code"><div class="wrapper">  <span class="nv">toJSON: </span><span class="o">-&gt;</span>
+    <span class="nx">@_query</span>
+
+  <span class="nv">_toMongoOp = </span><span class="nf">(op, value) -&gt;</span>
+    <span class="nv">answer = </span><span class="p">{}</span>
+    <span class="nv">opMap =</span>
+      <span class="s">&#39;&lt;&#39;</span><span class="o">:</span> <span class="s">&#39;$lt&#39;</span>
+      <span class="s">&#39;&gt;&#39;</span><span class="o">:</span> <span class="s">&#39;$gt&#39;</span>
+      <span class="s">&#39;&lt;=&#39;</span><span class="o">:</span> <span class="s">&#39;$lte&#39;</span>
+      <span class="s">&#39;&gt;=&#39;</span><span class="o">:</span> <span class="s">&#39;$gte&#39;</span>
+    <span class="k">if</span> <span class="nx">opMap</span><span class="p">[</span><span class="nx">op</span><span class="p">]</span><span class="o">?</span>
+      <span class="nx">answer</span><span class="p">[</span><span class="nx">opMap</span><span class="p">[</span><span class="nx">op</span><span class="p">]]</span> <span class="o">=</span> <span class="nx">value</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="nx">op</span> <span class="o">==</span> <span class="s">&#39;!=&#39;</span>
+      <span class="nx">answer</span><span class="p">[</span><span class="s">&#39;$not&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span>
+    <span class="nx">answer</span>
+
+  <span class="nv">_exprToMongo = </span><span class="nf">(expr) -&gt;</span>
+    <span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isObject</span> <span class="nx">expr</span>
+      <span class="nv">mongoExpr = </span><span class="p">{}</span>
+      <span class="k">for</span> <span class="nx">op</span><span class="p">,</span> <span class="nx">val</span> <span class="k">of</span> <span class="nx">expr</span>
+        <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span> <span class="nx">mongoExpr</span><span class="p">,</span> <span class="p">(</span><span class="nx">_toMongoOp</span> <span class="nx">op</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span>
+      <span class="nx">mongoExpr</span>
+    <span class="k">else</span>
+      <span class="nx">expr</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>toMongo</p></div></div><div class="code"><div class="wrapper">  <span class="nv">toMongo: </span><span class="nf">(query = @_query) -&gt;</span>
+    <span class="k">if</span> <span class="nx">_hasOnlyKey</span> <span class="nx">query</span><span class="p">,</span> <span class="s">&#39;&amp;&#39;</span>
+      <span class="k">return</span> <span class="s">&#39;$and&#39;</span><span class="o">:</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">map</span> <span class="nx">query</span><span class="p">[</span><span class="s">&#39;&amp;&#39;</span><span class="p">],</span> <span class="nx">@toMongo</span><span class="p">)</span>
+    <span class="nv">mongo = </span><span class="p">{}</span>
+    <span class="nv">equalities = </span><span class="p">{}</span>
+    <span class="k">for</span> <span class="nx">path</span><span class="p">,</span> <span class="nx">expr</span> <span class="k">of</span> <span class="nx">query</span>
+      <span class="nx">mongo</span><span class="p">[</span><span class="nx">path</span><span class="p">]</span> <span class="o">=</span> <span class="nx">_exprToMongo</span> <span class="nx">expr</span>
+      <span class="k">if</span> <span class="nx">expr</span><span class="p">[</span><span class="s">&#39;=&#39;</span><span class="p">]</span><span class="o">?</span>
+        <span class="nx">equalities</span><span class="p">[</span><span class="nx">path</span><span class="p">]</span> <span class="o">=</span> <span class="nx">expr</span><span class="p">[</span><span class="s">&#39;=&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">keys</span> <span class="nx">equalities</span><span class="p">).</span><span class="nx">length</span>
+      <span class="nv">mongo = </span><span class="s">&#39;$and&#39;</span><span class="o">:</span> <span class="p">[</span><span class="nx">mongo</span><span class="p">,</span> <span class="nx">@toMongo</span> <span class="nx">equalities</span><span class="p">]</span>
+    <span class="nx">mongo</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>The queryfu function is where</p></div></div><div class="code"><div class="wrapper"><span class="nv">queryfu.where = </span><span class="nx">queryfu</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>queryfu = module.exports</p></div></div><div class="code"><div class="wrapper"><span class="nv">queryfu.version = </span><span class="s">&#39;0.0.1&#39;</span>
+
+<span class="nv">module.exports = </span><span class="nx">queryfu</span></div></div></div></div></body></html>
