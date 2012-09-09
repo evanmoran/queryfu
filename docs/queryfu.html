@@ -6,19 +6,27 @@
 
 <p>There are four pretty similar ways to use queryfu:</p>
 
-<p>queryfu(path, value)</p>
-
-<p>queryfu(path, operator, value)</p>
-
-<p>queryfu(pathValue)</p>
-
-<p>queryfu(pathOperatorValue)</p>
+<h4 id="queryfupath-value">queryfu(path, value)</h4>
 
 <pre><code>path                String of attribute with optional dot syntax (e.g. 'name', 'person.name')
 value               String, Number, Boolean, Date, or null that defines value being compared
-operator            (Optional) String representing operator:  &lt;, &lt;=, =, &gt;=, &gt;, !=
-pathValue           Object that maps path to value, meaning query for quality
-pathOperatorValue   Object that maps path to operator to value: age:'&lt;':5
+</code></pre>
+
+<h4 id="queryfupath-operator-value">queryfu(path, operator, value)</h4>
+
+<pre><code>path                String of attribute with optional dot syntax (e.g. 'name', 'person.name')
+value               String, Number, Boolean, Date, or null that defines value being compared
+operator            (Default: '=') String representing operator:  &lt;, &lt;=, =, &gt;=, &gt;, !=
+</code></pre>
+
+<h4 id="queryfupathvalue">queryfu(pathValue)</h4>
+
+<pre><code>pathValue           Object that maps path to value (age: 5)
+</code></pre>
+
+<h4 id="queryfupathoperatorvalue">queryfu(pathOperatorValue)</h4>
+
+<pre><code>pathOperatorValue   Object that maps path to operator to value (age:'&lt;':5)
 </code></pre>
 
 <p>Basics</p>
@@ -69,9 +77,9 @@ queryfu(age:'&lt;':4).and(height:'&gt;=':10).toMongo()    # =&gt; {age:{'$lt':4,
       <span class="k">if</span> <span class="nx">currentValue</span> <span class="o">!=</span> <span class="nx">value</span>
         <span class="nx">errorList</span><span class="p">.</span><span class="nx">push</span> <span class="s">&quot;conflicting equality checks were found (key: </span><span class="si">#{</span><span class="nx">key</span><span class="si">}</span><span class="s">, values: </span><span class="si">#{</span><span class="nx">currentValue</span><span class="si">}</span><span class="s">, </span><span class="si">#{</span><span class="nx">value</span><span class="si">}</span><span class="s">)&quot;</span>
       <span class="k">return</span> <span class="nx">value</span>
-  <span class="nx">_mergeFailed</span>
+  <span class="nx">_mergeFailed</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><h2 id="class-queryfu">class QueryFu</h2>
 
-<span class="k">class</span> <span class="nx">QueryFu</span>
+<p>Abstract query builder</p></div></div><div class="code"><div class="wrapper"><span class="nv">queryfu.QueryFu = </span><span class="k">class</span> <span class="nx">QueryFu</span>
 
   <span class="nv">constructor: </span><span class="nf">(json = {}, errors = [])-&gt;</span>
     <span class="vi">@_query = </span><span class="nx">_</span><span class="p">.</span><span class="nx">clone</span> <span class="nx">json</span>
@@ -168,11 +176,7 @@ queryfu(n: '&lt;=':2).select([{s:'a', n:1},{s:'b', n:2}]).toArray()    # =&gt; [
       <span class="k">when</span> <span class="s">&#39;&lt;=&#39;</span> <span class="k">then</span> <span class="nf">(obj) -&gt;</span> <span class="nx">obj</span> <span class="o">&lt;=</span> <span class="nx">val</span>
       <span class="k">when</span> <span class="s">&#39;&gt;=&#39;</span> <span class="k">then</span> <span class="nf">(obj) -&gt;</span> <span class="nx">obj</span> <span class="o">&gt;=</span> <span class="nx">val</span>
       <span class="k">when</span> <span class="s">&#39;&gt;&#39;</span>  <span class="k">then</span> <span class="nf">(obj) -&gt;</span> <span class="nx">obj</span> <span class="o">&gt;</span> <span class="nx">val</span>
-      <span class="k">when</span> <span class="s">&#39;!=&#39;</span> <span class="k">then</span> <span class="nf">(obj) -&gt;</span> <span class="nx">obj</span> <span class="o">!=</span> <span class="nx">val</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p><code>not</code> implementation when that makes sense:
-when 'not'
-  falseMatcher = _matcherOp val
-  (obj) ->
-    not falseMatcher obj</p></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>_matchAll: return a function that matches all matcher functions given</p></div></div><div class="code"><div class="wrapper">  <span class="nv">_matchAll = </span><span class="nf">(matchers) -&gt;</span>
+      <span class="k">when</span> <span class="s">&#39;!=&#39;</span> <span class="k">then</span> <span class="nf">(obj) -&gt;</span> <span class="nx">obj</span> <span class="o">!=</span> <span class="nx">val</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>_matchAll: return a function that matches all matcher functions given</p></div></div><div class="code"><div class="wrapper">  <span class="nv">_matchAll = </span><span class="nf">(matchers) -&gt;</span>
     <span class="k">if</span> <span class="nx">matchers</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">0</span>
       <span class="k">return</span> <span class="o">-&gt;</span> <span class="kc">true</span>
     <span class="k">else</span> <span class="k">if</span> <span class="nx">matchers</span><span class="p">.</span><span class="nx">length</span> <span class="o">==</span> <span class="mi">1</span>
@@ -195,7 +199,9 @@ when 'not'
             <span class="nx">pathMatchers</span><span class="p">.</span><span class="nx">push</span> <span class="p">(</span><span class="nx">_matcherOp</span> <span class="nx">op</span><span class="p">,</span> <span class="nx">val</span><span class="p">,</span> <span class="nx">path</span><span class="p">)</span>
           <span class="nx">matchers</span><span class="p">[</span><span class="nx">path</span><span class="p">]</span> <span class="o">=</span> <span class="nx">_matchAll</span> <span class="nx">pathMatchers</span>
     <span class="nf">(obj) -&gt;</span>
-      <span class="k">for</span> <span class="nx">path</span><span class="p">,</span> <span class="nx">matcher</span> <span class="k">of</span> <span class="nx">matchers</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>console.log "path: ", path</p></div></div><div class="code"><div class="wrapper">        <span class="k">if</span> <span class="o">not</span> <span class="nx">matcher</span><span class="p">(</span><span class="nx">obj</span><span class="p">[</span><span class="nx">path</span><span class="p">])</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>console.log "matcher failed: ", matcher</p></div></div><div class="code"><div class="wrapper">          <span class="k">return</span> <span class="kc">false</span>
+      <span class="k">for</span> <span class="nx">path</span><span class="p">,</span> <span class="nx">matcher</span> <span class="k">of</span> <span class="nx">matchers</span>
+        <span class="k">if</span> <span class="o">not</span> <span class="nx">matcher</span><span class="p">(</span><span class="nx">obj</span><span class="p">[</span><span class="nx">path</span><span class="p">])</span>
+          <span class="k">return</span> <span class="kc">false</span>
       <span class="kc">true</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><h2 id="queryfumatch">queryfu.match</h2>
 
 <pre><code>queryfu(age:'&lt;=':4).match(name:'Evan', age:4)      # =&gt; true
@@ -209,7 +215,7 @@ queryfu(age:'&lt;':4).match(name:'Evan', age:4)       # =&gt; false
 
 <pre><code>unbufferedCursor        Should have functions `next`, `hasNext`
                         Optionally `all` or `toArray` will be used if they are defined
-</code></pre></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">CursorFu</span>
+</code></pre></div></div><div class="code"><div class="wrapper"><span class="nv">queryfu.CursorFu = </span><span class="k">class</span> <span class="nx">CursorFu</span>
 
   <span class="nv">constructor: </span><span class="nf">(@_cursor) -&gt;</span>
     <span class="k">throw</span> <span class="s">&#39;CursorFu: Cursor expected for first argument&#39;</span> <span class="nx">unless</span> <span class="nx">queryfu</span><span class="p">.</span><span class="nx">isCursor</span> <span class="nx">@_cursor</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>next: Get next element</p></div></div><div class="code"><div class="wrapper">  <span class="nv">next: </span><span class="o">-&gt;</span>
@@ -275,12 +281,12 @@ queryfu(age:'&lt;':4).match(name:'Evan', age:4)       # =&gt; false
 
 <p>Determine if object supports all cursor methods</p>
 
-<p>queryfu.isCursor(any, options)</p>
+<p>queryfu.isCursor(obj, options)</p>
 
-<pre><code>any             Variable to check
+<pre><code>obj             Object to check
 options         (Optional) Object of options:
-  buffered      Check for all buffered methods      (default: false)
-</code></pre></div></div><div class="code"><div class="wrapper"><span class="nv">queryfu.isCursor = </span><span class="nf">(any, options = {}) -&gt;</span>
-  <span class="k">return</span> <span class="kc">false</span> <span class="nx">unless</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isObject</span> <span class="nx">any</span>
+  buffered      (Default: false) Check for all buffered methods as well (count, all, skip)
+</code></pre></div></div><div class="code"><div class="wrapper"><span class="nv">queryfu.isCursor = </span><span class="nf">(obj, options = {}) -&gt;</span>
+  <span class="k">return</span> <span class="kc">false</span> <span class="nx">unless</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isObject</span> <span class="nx">obj</span>
   <span class="nv">buffered = </span><span class="k">if</span> <span class="nx">options</span><span class="p">.</span><span class="nx">buffered</span><span class="o">?</span> <span class="k">then</span> <span class="nx">options</span><span class="p">.</span><span class="nx">buffered</span> <span class="k">else</span> <span class="kc">false</span>
-  <span class="nv">isCursor = </span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span> <span class="nx">any</span><span class="p">.</span><span class="nx">next</span><span class="p">)</span> <span class="o">and</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span> <span class="nx">any</span><span class="p">.</span><span class="nx">hasNext</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Unbuffered cursor</p></div></div><div class="code"><div class="wrapper">  <span class="k">return</span> <span class="nx">isCursor</span> <span class="nx">unless</span> <span class="nx">buffered</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Buffered cursor</p></div></div><div class="code"><div class="wrapper">  <span class="nv">isBufferedCursor = </span><span class="nx">isCursor</span> <span class="o">and</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span> <span class="nx">any</span><span class="p">.</span><span class="nx">all</span><span class="p">)</span> <span class="o">and</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span> <span class="nx">any</span><span class="p">.</span><span class="nx">count</span><span class="p">)</span> <span class="o">and</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span> <span class="nx">any</span><span class="p">.</span><span class="nx">skip</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Export QueryFu</p></div></div><div class="code"><div class="wrapper"><span class="nv">queryfu.QueryFu = </span><span class="nx">QueryFu</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Export CursorFu</p></div></div><div class="code"><div class="wrapper"><span class="nv">queryfu.CursorFu = </span><span class="nx">CursorFu</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Version</p></div></div><div class="code"><div class="wrapper"><span class="nv">queryfu.version = </span><span class="s">&#39;0.2.0&#39;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Export</p></div></div><div class="code"><div class="wrapper"><span class="nv">module.exports = </span><span class="nx">queryfu</span></div></div></div></div></body></html>
+  <span class="nv">isCursor = </span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">next</span><span class="p">)</span> <span class="o">and</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">hasNext</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Unbuffered cursor</p></div></div><div class="code"><div class="wrapper">  <span class="k">return</span> <span class="nx">isCursor</span> <span class="nx">unless</span> <span class="nx">buffered</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Buffered cursor</p></div></div><div class="code"><div class="wrapper">  <span class="nv">isBufferedCursor = </span><span class="nx">isCursor</span> <span class="o">and</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">all</span><span class="p">)</span> <span class="o">and</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">count</span><span class="p">)</span> <span class="o">and</span> <span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span> <span class="nx">obj</span><span class="p">.</span><span class="nx">skip</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Version</p></div></div><div class="code"><div class="wrapper"><span class="nv">queryfu.version = </span><span class="s">&#39;0.2.1&#39;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Export</p></div></div><div class="code"><div class="wrapper"><span class="nv">module.exports = </span><span class="nx">queryfu</span></div></div></div></div></body></html>

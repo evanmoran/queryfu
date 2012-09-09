@@ -7,19 +7,24 @@
 #
 # There are four pretty similar ways to use queryfu:
 #
-# queryfu(path, value)
-#
-# queryfu(path, operator, value)
-#
-# queryfu(pathValue)
-#
-# queryfu(pathOperatorValue)
+# #### queryfu(path, value)
 #
 #     path                String of attribute with optional dot syntax (e.g. 'name', 'person.name')
 #     value               String, Number, Boolean, Date, or null that defines value being compared
-#     operator            (Optional) String representing operator:  <, <=, =, >=, >, !=
-#     pathValue           Object that maps path to value, meaning query for quality
-#     pathOperatorValue   Object that maps path to operator to value: age:'<':5
+#
+# #### queryfu(path, operator, value)
+#
+#     path                String of attribute with optional dot syntax (e.g. 'name', 'person.name')
+#     value               String, Number, Boolean, Date, or null that defines value being compared
+#     operator            (Default: '=') String representing operator:  <, <=, =, >=, >, !=
+#
+# #### queryfu(pathValue)
+#
+#     pathValue           Object that maps path to value (age: 5)
+#
+# #### queryfu(pathOperatorValue)
+#
+#     pathOperatorValue   Object that maps path to operator to value (age:'<':5)
 #
 #  Basics
 #
@@ -71,7 +76,11 @@ _mergeOp = (operator, currentValue, value, key, errorList) ->
       return value
   _mergeFailed
 
-class QueryFu
+# class QueryFu
+# ----------------------------------------------------------------------------------------
+# Abstract query builder
+
+queryfu.QueryFu = class QueryFu
 
   constructor: (json = {}, errors = [])->
     @_query = _.clone json
@@ -212,11 +221,6 @@ class QueryFu
       when '>=' then (obj) -> obj >= val
       when '>'  then (obj) -> obj > val
       when '!=' then (obj) -> obj != val
-      # `not` implementation when that makes sense:
-      # when 'not'
-      #   falseMatcher = _matcherOp val
-      #   (obj) ->
-      #     not falseMatcher obj
 
   # _matchAll: return a function that matches all matcher functions given
   _matchAll = (matchers) ->
@@ -250,9 +254,7 @@ class QueryFu
           matchers[path] = _matchAll pathMatchers
     (obj) ->
       for path, matcher of matchers
-        # console.log "path: ", path
         if not matcher(obj[path])
-          # console.log "matcher failed: ", matcher
           return false
       true
 
@@ -275,7 +277,7 @@ class QueryFu
 #     unbufferedCursor        Should have functions `next`, `hasNext`
 #                             Optionally `all` or `toArray` will be used if they are defined
 
-class CursorFu
+queryfu.CursorFu = class CursorFu
 
   constructor: (@_cursor) ->
     throw 'CursorFu: Cursor expected for first argument' unless queryfu.isCursor @_cursor
@@ -390,28 +392,23 @@ queryfu.where = queryfu
 # ----------------------------------------------------------------------------------------
 # Determine if object supports all cursor methods
 #
-# queryfu.isCursor(any, options)
+# queryfu.isCursor(obj, options)
 #
-#     any             Variable to check
+#     obj             Object to check
 #     options         (Optional) Object of options:
-#       buffered      Check for all buffered methods      (default: false)
+#       buffered      (Default: false) Check for all buffered methods as well (count, all, skip)
 #
-queryfu.isCursor = (any, options = {}) ->
-  return false unless _.isObject any
+queryfu.isCursor = (obj, options = {}) ->
+  return false unless _.isObject obj
   buffered = if options.buffered? then options.buffered else false
-  isCursor = (_.isFunction any.next) and (_.isFunction any.hasNext)
+  isCursor = (_.isFunction obj.next) and (_.isFunction obj.hasNext)
   # Unbuffered cursor
   return isCursor unless buffered
   # Buffered cursor
-  isBufferedCursor = isCursor and (_.isFunction any.all) and (_.isFunction any.count) and (_.isFunction any.skip)
-# Export QueryFu
-queryfu.QueryFu = QueryFu
-
-# Export CursorFu
-queryfu.CursorFu = CursorFu
+  isBufferedCursor = isCursor and (_.isFunction obj.all) and (_.isFunction obj.count) and (_.isFunction obj.skip)
 
 # Version
-queryfu.version = '0.2.0'
+queryfu.version = '0.2.1'
 
 # Export
 module.exports = queryfu

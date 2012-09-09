@@ -47,7 +47,7 @@
     return _mergeFailed;
   };
 
-  QueryFu = (function() {
+  queryfu.QueryFu = QueryFu = (function() {
     var _exprToMongo, _matchAll, _matcher, _matcherOp, _toMongoOp;
 
     function QueryFu(json, errors) {
@@ -319,7 +319,7 @@
 
   })();
 
-  CursorFu = (function() {
+  queryfu.CursorFu = CursorFu = (function() {
 
     function CursorFu(_cursor) {
       this._cursor = _cursor;
@@ -473,27 +473,23 @@
 
   queryfu.where = queryfu;
 
-  queryfu.isCursor = function(any, options) {
+  queryfu.isCursor = function(obj, options) {
     var buffered, isBufferedCursor, isCursor;
     if (options == null) {
       options = {};
     }
-    if (!_.isObject(any)) {
+    if (!_.isObject(obj)) {
       return false;
     }
     buffered = options.buffered != null ? options.buffered : false;
-    isCursor = (_.isFunction(any.next)) && (_.isFunction(any.hasNext));
+    isCursor = (_.isFunction(obj.next)) && (_.isFunction(obj.hasNext));
     if (!buffered) {
       return isCursor;
     }
-    return isBufferedCursor = isCursor && (_.isFunction(any.all)) && (_.isFunction(any.count)) && (_.isFunction(any.skip));
+    return isBufferedCursor = isCursor && (_.isFunction(obj.all)) && (_.isFunction(obj.count)) && (_.isFunction(obj.skip));
   };
 
-  queryfu.QueryFu = QueryFu;
-
-  queryfu.CursorFu = CursorFu;
-
-  queryfu.version = '0.2.0';
+  queryfu.version = '0.2.1';
 
   module.exports = queryfu;
 

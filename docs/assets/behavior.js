@@ -37,7 +37,50 @@ f.event={add:function(a,c,d,e,g){var h,i,j,k,l,m,n,o,p,q,r,s;if(!(a.nodeType===3
                 "title": "Usage",
                 "slug": "usage"
               },
-              "depth": 3
+              "depth": 3,
+              "children": [
+                {
+                  "type": "heading",
+                  "data": {
+                    "level": 4,
+                    "title": "queryfu(path, value)",
+                    "slug": "queryfupath-value"
+                  },
+                  "depth": 4
+                }, {
+                  "type": "heading",
+                  "data": {
+                    "level": 4,
+                    "title": "queryfu(path, operator, value)",
+                    "slug": "queryfupath-operator-value"
+                  },
+                  "depth": 4
+                }, {
+                  "type": "heading",
+                  "data": {
+                    "level": 4,
+                    "title": "queryfu(pathValue)",
+                    "slug": "queryfupathvalue"
+                  },
+                  "depth": 4
+                }, {
+                  "type": "heading",
+                  "data": {
+                    "level": 4,
+                    "title": "queryfu(pathOperatorValue)",
+                    "slug": "queryfupathoperatorvalue"
+                  },
+                  "depth": 4
+                }
+              ]
+            }, {
+              "type": "heading",
+              "data": {
+                "level": 2,
+                "title": "class QueryFu",
+                "slug": "class-queryfu"
+              },
+              "depth": 2
             }, {
               "type": "heading",
               "data": {
