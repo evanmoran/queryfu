@@ -210,7 +210,7 @@ queryfu.QueryFu = class QueryFu
   select: (cursorOrArray) ->
     throw 'queryfu.select: Cursor or array expected for argument one' unless (_.isArray cursorOrArray) or (queryfu.isCursor cursorOrArray)
     cursor = if _.isArray cursorOrArray then queryfu.listCursor (cursorOrArray) else cursorOrArray
-    new CursorFu (new FilteredFu cursor, (_.bind @match, @))
+    queryfu.filterCursor cursor, (_.bind @match, @)
 
   # _matcherOp: generate matcher function for operator
   _matcherOp = (op, val, path = '') ->
@@ -348,14 +348,34 @@ class ListCursorFu
     @_list = []
     rest
 
-# ### FilteredFu
+# ### mapCursor and filterCursor
 
-# Internal unbuffered cursor for filtering
+# Internally we use unbuffered versions, externally every cursor is buffered
 
-class FilteredFu
-  constructor: (@_cursor, @_match) ->
-    throw 'FilteredFu: Cursor expected for first argument (cursorToFilter)' unless queryfu.isCursor @_cursor
-    throw 'FilteredFu: Function expected for second argument (matchFunction)' unless _.isFunction @_match
+bufferCursor = (cursor) ->
+  if (queryfu.isCursor cursor, buffered: true) then cursor else (new CursorFu cursor)
+
+unbufferedMapCursor = (cursor, transform) ->
+  new MappedFu cursor, transform
+
+queryfu.mapCursor = (cursor, transform) ->
+  bufferCursor (unbufferedMapCursor cursor, transform)
+
+unbufferedFilterCursor = (cursor, filter) ->
+  unbufferedMapCursor cursor, (elem) ->
+    if filter elem then elem else undefined
+
+queryfu.filterCursor = (cursor, filter) ->
+  bufferCursor (unbufferedFilterCursor cursor, filter)
+
+# ### MappedFu
+
+# Unbuffered cursor for mapping
+
+class MappedFu
+  constructor: (@_cursor, @_map) ->
+    throw 'MappedFu: Cursor expected for first argument (cursorToMap)' unless queryfu.isCursor @_cursor
+    throw 'MappedFu: Function expected for second argument (mapFunction)' unless _.isFunction @_map
 
   next: ->
     next = if @_next? then @_next else @_getNext()
@@ -369,8 +389,8 @@ class FilteredFu
   _getNext: ->
     while @_cursor.hasNext()
       next = @_cursor.next()
-      if @_match next
-        return next
+      mapped = @_map next
+      return mapped if not _.isUndefined mapped
     undefined
 
 # queryfu.listCursor
@@ -380,7 +400,7 @@ class FilteredFu
 
 queryfu.listCursor = (list) ->
   throw 'listCursor: Array expected for first argument' unless _.isArray list
-  new CursorFu(new ListCursorFu list)
+  bufferCursor (new ListCursorFu list)
 
 # queryfu.where
 # ----------------------------------------------------------------------------------------
@@ -408,7 +428,7 @@ queryfu.isCursor = (obj, options = {}) ->
   isBufferedCursor = isCursor and (_.isFunction obj.all) and (_.isFunction obj.count) and (_.isFunction obj.skip)
 
 # Version
-queryfu.version = '0.2.1'
+queryfu.version = '0.2.2'
 
 # Export
 module.exports = queryfu
