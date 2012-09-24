@@ -529,7 +529,7 @@
     return isBufferedCursor = isCursor && (_.isFunction(obj.all)) && (_.isFunction(obj.count)) && (_.isFunction(obj.skip));
   };
 
-  queryfu.version = '0.2.2';
+  queryfu.version = '0.2.3';
 
   module.exports = queryfu;
 

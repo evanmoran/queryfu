@@ -431,7 +431,7 @@ queryfu.isCursor = (obj, options = {}) ->
   isBufferedCursor = isCursor and (_.isFunction obj.all) and (_.isFunction obj.count) and (_.isFunction obj.skip)
 
 # Version
-queryfu.version = '0.2.2'
+queryfu.version = '0.2.3'
 
 # Export
 module.exports = queryfu

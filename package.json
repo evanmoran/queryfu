@@ -1,6 +1,6 @@
 {
   "name": "queryfu",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "main": "src/queryfu.js",
   "description": "An intermediate query language for ninjas.",
   "homepage": "http://github.com/evanmoran/queryfu/",
