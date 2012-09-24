@@ -353,9 +353,11 @@ class ListCursorFu
 # Internally we use unbuffered versions, externally every cursor is buffered
 
 bufferCursor = (cursor) ->
+  return null if not cursor
   if (queryfu.isCursor cursor, buffered: true) then cursor else (new CursorFu cursor)
 
 unbufferedMapCursor = (cursor, transform) ->
+  return null if not cursor
   new MappedFu cursor, transform
 
 queryfu.mapCursor = (cursor, transform) ->
@@ -376,14 +378,15 @@ class MappedFu
   constructor: (@_cursor, @_map) ->
     throw 'MappedFu: Cursor expected for first argument (cursorToMap)' unless queryfu.isCursor @_cursor
     throw 'MappedFu: Function expected for second argument (mapFunction)' unless _.isFunction @_map
+    @_next = undefined
 
   next: ->
-    next = if @_next? then @_next else @_getNext()
+    next = if not _.isUndefined @_next then @_next else @_getNext()
     @_next = undefined
     next
 
   hasNext: ->
-    @_next = @_getNext() unless @_next
+    @_next = @_getNext() if _.isUndefined @_next
     not _.isUndefined @_next
 
   _getNext: ->

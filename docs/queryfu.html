@@ -253,9 +253,11 @@ queryfu(age:'&lt;':4).match(name:'Evan', age:4)       # =&gt; false
     <span class="nv">rest = </span><span class="nx">@_list</span>
     <span class="vi">@_list = </span><span class="p">[]</span>
     <span class="nx">rest</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><h3 id="mapcursor-and-filtercursor">mapCursor and filterCursor</h3></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Internally we use unbuffered versions, externally every cursor is buffered</p></div></div><div class="code"><div class="wrapper"><span class="nv">bufferCursor = </span><span class="nf">(cursor) -&gt;</span>
+  <span class="k">return</span> <span class="kc">null</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">cursor</span>
   <span class="k">if</span> <span class="p">(</span><span class="nx">queryfu</span><span class="p">.</span><span class="nx">isCursor</span> <span class="nx">cursor</span><span class="p">,</span> <span class="nv">buffered: </span><span class="kc">true</span><span class="p">)</span> <span class="k">then</span> <span class="nx">cursor</span> <span class="k">else</span> <span class="p">(</span><span class="k">new</span> <span class="nx">CursorFu</span> <span class="nx">cursor</span><span class="p">)</span>
 
 <span class="nv">unbufferedMapCursor = </span><span class="nf">(cursor, transform) -&gt;</span>
+  <span class="k">return</span> <span class="kc">null</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">cursor</span>
   <span class="k">new</span> <span class="nx">MappedFu</span> <span class="nx">cursor</span><span class="p">,</span> <span class="nx">transform</span>
 
 <span class="nv">queryfu.mapCursor = </span><span class="nf">(cursor, transform) -&gt;</span>
@@ -272,18 +274,19 @@ queryfu(age:'&lt;':4).match(name:'Evan', age:4)       # =&gt; false
     <span class="k">throw</span> <span class="s">&#39;MappedFu: Function expected for second argument (mapFunction)&#39;</span> <span class="nx">unless</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isFunction</span> <span class="nx">@_map</span>
 
   <span class="nv">next: </span><span class="o">-&gt;</span>
-    <span class="nv">next = </span><span class="k">if</span> <span class="nx">@_next</span><span class="o">?</span> <span class="k">then</span> <span class="nx">@_next</span> <span class="k">else</span> <span class="nx">@_getNext</span><span class="p">()</span>
+    <span class="nv">next = </span><span class="k">if</span> <span class="o">not</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isUndefined</span> <span class="nx">@_next</span> <span class="k">then</span> <span class="nx">@_next</span> <span class="k">else</span> <span class="nx">@_getNext</span><span class="p">()</span>
     <span class="vi">@_next = </span><span class="kc">undefined</span>
     <span class="nx">next</span>
 
   <span class="nv">hasNext: </span><span class="o">-&gt;</span>
-    <span class="vi">@_next = </span><span class="nx">@_getNext</span><span class="p">()</span> <span class="nx">unless</span> <span class="nx">@_next</span>
+    <span class="vi">@_next = </span><span class="nx">@_getNext</span><span class="p">()</span> <span class="nx">unless</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isUndefined</span> <span class="nx">@_next</span>
     <span class="o">not</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isUndefined</span> <span class="nx">@_next</span>
 
   <span class="nv">_getNext: </span><span class="o">-&gt;</span>
     <span class="k">while</span> <span class="nx">@_cursor</span><span class="p">.</span><span class="nx">hasNext</span><span class="p">()</span>
       <span class="nv">next = </span><span class="nx">@_cursor</span><span class="p">.</span><span class="nx">next</span><span class="p">()</span>
       <span class="nv">mapped = </span><span class="nx">@_map</span> <span class="nx">next</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&quot;next: &quot;</span><span class="p">,</span> <span class="nx">next</span><span class="p">,</span> <span class="s">&quot; mapped: &quot;</span><span class="p">,</span> <span class="nx">mapped</span>
       <span class="k">return</span> <span class="nx">mapped</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isUndefined</span> <span class="nx">mapped</span>
     <span class="kc">undefined</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><h2 id="queryfulistcursor">queryfu.listCursor</h2>
 

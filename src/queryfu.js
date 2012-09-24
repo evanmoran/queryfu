@@ -423,6 +423,9 @@
   })();
 
   bufferCursor = function(cursor) {
+    if (!cursor) {
+      return null;
+    }
     if (queryfu.isCursor(cursor, {
       buffered: true
     })) {
@@ -433,6 +436,9 @@
   };
 
   unbufferedMapCursor = function(cursor, transform) {
+    if (!cursor) {
+      return null;
+    }
     return new MappedFu(cursor, transform);
   };
 
@@ -465,17 +471,18 @@
       if (!_.isFunction(this._map)) {
         throw 'MappedFu: Function expected for second argument (mapFunction)';
       }
+      this._next = void 0;
     }
 
     MappedFu.prototype.next = function() {
       var next;
-      next = this._next != null ? this._next : this._getNext();
+      next = !_.isUndefined(this._next) ? this._next : this._getNext();
       this._next = void 0;
       return next;
     };
 
     MappedFu.prototype.hasNext = function() {
-      if (!this._next) {
+      if (_.isUndefined(this._next)) {
         this._next = this._getNext();
       }
       return !_.isUndefined(this._next);
