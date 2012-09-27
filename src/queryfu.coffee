@@ -45,6 +45,8 @@
 #     queryfu(age:'<':4).and(height:'>=':10).toMongo()    # => {age:{'$lt':4, '$gte':10}}
 #
 
+_ = require 'underscore'
+
 queryfu = (path, operator, value) ->
 
   qf = new QueryFu
@@ -431,7 +433,7 @@ queryfu.isCursor = (obj, options = {}) ->
   isBufferedCursor = isCursor and (_.isFunction obj.all) and (_.isFunction obj.count) and (_.isFunction obj.skip)
 
 # Version
-queryfu.version = '0.2.3'
+queryfu.version = '0.2.4'
 
 # Export
 module.exports = queryfu

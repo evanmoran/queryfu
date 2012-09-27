@@ -48,7 +48,9 @@ queryfu(age:'&lt;':4).match(name:'Evan', age:4)        # =&gt; false
 
 <pre><code>queryfu(age:'&lt;':4).toMongo()                        # =&gt; {age:{'$lt':4}}
 queryfu(age:'&lt;':4).and(height:'&gt;=':10).toMongo()    # =&gt; {age:{'$lt':4, '$gte':10}}
-</code></pre></div></div><div class="code"><div class="wrapper"><span class="nv">queryfu = </span><span class="nf">(path, operator, value) -&gt;</span>
+</code></pre></div></div><div class="code"><div class="wrapper"><span class="nv">_ = </span><span class="nx">require</span> <span class="s">&#39;underscore&#39;</span>
+
+<span class="nv">queryfu = </span><span class="nf">(path, operator, value) -&gt;</span>
 
   <span class="nv">qf = </span><span class="k">new</span> <span class="nx">QueryFu</span>
   <span class="nx">qf</span><span class="p">.</span><span class="nx">where</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">qf</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">)</span>
